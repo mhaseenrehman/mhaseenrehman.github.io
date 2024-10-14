@@ -1,12 +1,19 @@
 // Imports --------------------------------------------------------------------------------------------------
-import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
-import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { cameraPosition } from "three/webgpu";
-import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
+// import * as THREE from "three";
+// import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+// import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+// import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+// import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+// import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
+
+import * as THREE from "https://unpkg.com/three/build/three.module.js";
+import { EffectComposer } from "https://unpkg.com/three/addons/postprocessing/EffectComposer.js";
+import { OutputPass } from "https://unpkg.com/three/addons/postprocessing/OutputPass.js";
+import { RenderPass } from "https://unpkg.com/three/addons/postprocessing/RenderPass.js";
+import { GLTFLoader } from "https://unpkg.com/three/addons/loaders/GLTFLoader.js";
+import { CSS2DObject, CSS2DRenderer } from "https://unpkg.com/three/addons/renderers/CSS2DRenderer.js";
+
+
 
 // Shaders --------------------------------------------------------------------------------------------------
 let vertexShader = await(await fetch("./shaders/solarVertexShader.glsl")).text();

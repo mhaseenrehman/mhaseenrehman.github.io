@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "main": "animations.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "gh-pages -d dist"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "gh-pages": "^6.2.0",
     "three": "^0.168.0"
   },
   "devDependencies": {
