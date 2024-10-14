@@ -16,8 +16,8 @@ import { CSS2DObject, CSS2DRenderer } from "https://unpkg.com/three/addons/rende
 
 
 // Shaders --------------------------------------------------------------------------------------------------
-let vertexShader = await(await fetch("./shaders/solarVertexShader.glsl")).text();
-let fragmentShader = await(await fetch("./shaders/solarFragmentShader.glsl")).text();
+let vertexShader = fetch("./shaders/solarVertexShader.glsl").text();
+let fragmentShader = fetch("./shaders/solarFragmentShader.glsl").text();
 
 var scene, camera, renderer, htmlRenderer, composer, clock, solarUniforms, solarMesh, cameraIndex, look;
 
@@ -411,5 +411,5 @@ function checkEpsilon(v, w) {
 }
 
 // Start Website --------------------------------------------------------------------------------------------
-await initialisation();
+initialisation();
 
