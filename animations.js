@@ -7,11 +7,11 @@
 // import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
 
 import * as THREE from "https://unpkg.com/three/build/three.module.js";
-import { EffectComposer } from "https://unpkg.com/three/addons/postprocessing/EffectComposer.js";
-import { OutputPass } from "https://unpkg.com/three/addons/postprocessing/OutputPass.js";
-import { RenderPass } from "https://unpkg.com/three/addons/postprocessing/RenderPass.js";
-import { GLTFLoader } from "https://unpkg.com/three/addons/loaders/GLTFLoader.js";
-import { CSS2DObject, CSS2DRenderer } from "https://unpkg.com/three/addons/renderers/CSS2DRenderer.js";
+import { EffectComposer } from "https://unpkg.com/three/examples/jsm/postprocessing/EffectComposer.js";
+import { OutputPass } from "https://unpkg.com/three/examples/jsm/postprocessing/OutputPass.js";
+import { RenderPass } from "https://unpkg.com/three/examples/jsm/postprocessing/RenderPass.js";
+import { GLTFLoader } from "https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js";
+import { CSS2DObject, CSS2DRenderer } from "https://unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js";
 
 
 
