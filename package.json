@@ -1,20 +1,22 @@
 {
   "name": "personalwebsite",
   "version": "1.0.0",
-  "main": "animations.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "vite build",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "gh-pages": "^6.2.0",
     "three": "^0.168.0"
   },
   "devDependencies": {
+    "@types/three": "^0.169.0",
+    "gh-pages": "^6.2.0",
+    "parcel": "^2.12.0",
     "vite": "^5.4.6"
   }
 }

@@ -1,23 +1,21 @@
 // Imports --------------------------------------------------------------------------------------------------
-// import * as THREE from "three";
-// import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-// import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
-// import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-// import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-// import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
+import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
 
-import * as THREE from "https://unpkg.com/three/build/three.module.js";
-import { EffectComposer } from "https://unpkg.com/three/examples/jsm/postprocessing/EffectComposer.js";
-import { OutputPass } from "https://unpkg.com/three/examples/jsm/postprocessing/OutputPass.js";
-import { RenderPass } from "https://unpkg.com/three/examples/jsm/postprocessing/RenderPass.js";
-import { GLTFLoader } from "https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js";
-import { CSS2DObject, CSS2DRenderer } from "https://unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js";
-
-
+// import * as THREE from "https://unpkg.com/three/build/three.module.js";
+// import { EffectComposer } from "https://unpkg.com/three/examples/jsm/postprocessing/EffectComposer.js";
+// import { OutputPass } from "https://unpkg.com/three/examples/jsm/postprocessing/OutputPass.js";
+// import { RenderPass } from "https://unpkg.com/three/examples/jsm/postprocessing/RenderPass.js";
+// import { GLTFLoader } from "https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js";
+// import { CSS2DObject, CSS2DRenderer } from "https://unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js";
 
 // Shaders --------------------------------------------------------------------------------------------------
-let vertexShader = fetch("./shaders/solarVertexShader.glsl").text();
-let fragmentShader = fetch("./shaders/solarFragmentShader.glsl").text();
+let vertexShader;
+let fragmentShader;
 
 var scene, camera, renderer, htmlRenderer, composer, clock, solarUniforms, solarMesh, cameraIndex, look;
 
@@ -37,11 +35,11 @@ var htmlLabels = [];
 function createSolarCentre() {
 	const textureLoader = new THREE.TextureLoader();
 
-	const solarTile = textureLoader.load('assets/solarTexture.png');
+	const solarTile = textureLoader.load('static/solarTexture.png');
 	solarTile.colorSpace = THREE.SRGBColorSpace;
 	solarTile.wrapS = solarTile.wrapT = THREE.RepeatWrapping;
 
-	const solarNoise = textureLoader.load('assets/noiseTexture.png');
+	const solarNoise = textureLoader.load('static/noiseTexture.png');
 	solarNoise.wrapS = solarNoise.wrapT = THREE.RepeatWrapping;
 
 	// Uniforms -------------------------------------------------------------------------------------------------
@@ -75,7 +73,7 @@ function createSunLight() {
 }
 
 async function createPlanetsInOrbit(scene) {
-	const modelPath = "./models/";
+	const modelPath = "./static/";
 	const modelLoader = new GLTFLoader();
 
 	var planetCache = [];
@@ -199,7 +197,7 @@ async function initialisation() {
 	clock = new THREE.Clock();
 
 	// Texture Loaders ------------------------------------------------------------------------------------------
-	const textureCube = new THREE.CubeTextureLoader().setPath("./assets/").load([
+	const textureCube = new THREE.CubeTextureLoader().setPath("./static/").load([
 		"right.png", "left.png",
 		"top.png", "bottom.png",
 		"front.png", "back.png"
@@ -411,5 +409,12 @@ function checkEpsilon(v, w) {
 }
 
 // Start Website --------------------------------------------------------------------------------------------
-initialisation();
+async function start() {
+	vertexShader = await (await fetch("./shaders/solarVertexShader.glsl")).text();
+	fragmentShader = await (await fetch("./shaders/solarFragmentShader.glsl")).text();
+
+	await initialisation(); 
+}
+
+start();
 
