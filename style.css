@@ -1,6 +1,7 @@
 * {
     padding: 0;
     margin: 0;
+    font-family: "Lucida Console", "Courier New", "monospace";
 }
 
 .body {
@@ -15,7 +16,9 @@
 }
 
 #body-of-page {
-    position: absolute;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
 }
 
 .webgl {
@@ -25,43 +28,123 @@
     outline: none;
 }
 
+#loading-screen {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 50%;
+    transform : translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: 2s opacity;
+    transition-delay: 1s;
+}
+
+#loading-screen.loading-fade-out {
+    opacity: 0;
+}
+
+#progress {
+    overflow: visible;
+    position: relative;
+    background: rgba(0, 0, 0, 0.4);
+    justify-content: flex-start;
+    border-radius: 100px;
+    align-items: center;
+    padding: 0 5px;
+    display: flex;
+    height: 25%;
+    width: 25%;
+}
+
+#progress-value {
+    z-index: 10;
+    position: relative;
+    box-shadow: 0 0.1em 1em 0.1em #00ff4c;
+    border-radius: 1%;
+    background-color: rgb(0, 255, 85);
+    height: 3%;
+    width: 0;
+    transition: width 1s;
+}
+
+#loading-animation {
+
+}
+
+.loading-fade-out {
+
+}
+
+.starting-ending-panel {
+    display: none;
+    position: absolute;
+    background-color: rgb(7, 20, 37, 0.0);
+    border-radius: 15%;
+    top:30%;
+    left: 50%;
+    transform : translate(-50%, -50%);
+    border-style: solid;
+    border-color: rgb(34, 191, 125, 0.0);
+    padding: 1rem;
+    margin: auto;
+    justify-content: center;
+}
+
 .information-panel {
     display: none;
     position: absolute;
-    background-color: #18233d;
-
-    animation-name: simple-animation;
-    animation-duration: 2s;
-    animation-iteration-count: infinite;
-}
-
-#space-line {
+    background-color: rgb(7, 20, 37, 0.0);
+    border-radius: 15%;
+    top:20%;
+    left: 10%;
+    border-style: solid;
+    border-color: rgb(34, 191, 125, 0.0);
     
-    width: 400px;
-    height: 2px;
-    background-color: red;
-    position: absolute;
-    /* animation-name: space-line-animation;
-    animation-duration: 2s;
-    animation-timing-function: linear; */
+    padding: 1rem;
+    margin: auto;
 }
 
-@keyframes simple-animation {
+@keyframes pop-up-animation {
     0% {
-        background-color: #22bf7e;
+        transform: scale(0);
+        border-radius: 0%;
+        background-color: rgba(34, 191, 126, 0.0);
     }
     
     100% {
-        background-color: #18233d;
+        transform: scale(1);
+        border-radius: 15%;
+        background-color: rgb(7, 20, 37, 0.0);
     }
 }
 
-@keyframes space-line-animation {
-    0% {
-        width: 0%;
-    }
 
-    100% {
-        width: 100%;
-    }
+.information-text {
+    float: left;
+    margin: auto;
 }
+ 
+.information-text p { 
+    opacity: 0;
+    overflow-wrap: anywhere;
+	border-right: .1em solid;
+	margin: 2em 1em;
+	overflow: hidden;
+    white-space: nowrap;
+	animation: typing 0.5s steps(15, end),
+	           blink-caret .5s step-end alternate;
+    animation-delay: 1s;
+    animation-fill-mode: forwards;
+}
+
+
+
+@keyframes typing { from { opacity: 1; max-width: 0; } to{ opacity: 1; border: none; overflow-wrap: break-word;} }
+@keyframes blink-caret { 50% { border-color: transparent; } }

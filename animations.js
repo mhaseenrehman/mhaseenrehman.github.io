@@ -5,35 +5,41 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
+import { BloomPass } from "three/addons/postprocessing/BloomPass.js";
 
-// import * as THREE from "https://unpkg.com/three/build/three.module.js";
-// import { EffectComposer } from "https://unpkg.com/three/examples/jsm/postprocessing/EffectComposer.js";
-// import { OutputPass } from "https://unpkg.com/three/examples/jsm/postprocessing/OutputPass.js";
-// import { RenderPass } from "https://unpkg.com/three/examples/jsm/postprocessing/RenderPass.js";
-// import { GLTFLoader } from "https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js";
-// import { CSS2DObject, CSS2DRenderer } from "https://unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js";
+// HTML Elements --------------------------------------------------------------------------------------------
+const loadingScreen = document.getElementById("loading-screen");
+const loadingLabel = document.getElementById("loading-label")
+const progressBar = document.getElementById("progress-value");
 
-// Shaders --------------------------------------------------------------------------------------------------
+// Globals --------------------------------------------------------------------------------------------------
+const loadingManager = new THREE.LoadingManager( 
+	() => {
+		loadingScreen.classList.add("loading-fade-out");
+		loadingScreen.addEventListener("transitionend", onTransitionEnd);
+	},
+	(url, loading, total) => {
+		//progressBar.value = (loading/total * 100);
+		progressBar.style.width = (loading/total * 100).toString() + "%";
+		
+	},
+);
 let vertexShader;
 let fragmentShader;
-
 var scene, camera, renderer, htmlRenderer, composer, clock, solarUniforms, solarMesh, cameraIndex, look;
-
 var startQuaternion = new THREE.Quaternion();
 var targetQuaternion = new THREE.Quaternion();
-
 var planets, orbits, orbitLines;
-
 var startingPositions = [];
-
-// const spaceLine = document.getElementById("space-line");
-// const spaceLineCSSObject = new CSS2DObject(spaceLine);
-
 var htmlLabels = [];
+var renderedLabel = false;
+var systemView;
+var startingLabel;
+var endingLabel;
 
 // Scene Construction ---------------------------------------------------------------------------------------
 function createSolarCentre() {
-	const textureLoader = new THREE.TextureLoader();
+	const textureLoader = new THREE.TextureLoader(loadingManager);
 
 	const solarTile = textureLoader.load('static/solarTexture.png');
 	solarTile.colorSpace = THREE.SRGBColorSpace;
@@ -67,14 +73,19 @@ function createSolarCentre() {
 
 function createSunLight() {
 	const solarLight = new THREE.PointLight(0xffffff, 100);
-	solarLight.power = 100000;
+	solarLight.power = 50000;
 	solarLight.position.set(0,0,0);
 	return solarLight;
 }
 
+function createGalaxyLight() {
+	const galaxyLight = new THREE.AmbientLight(0x00ff9d);
+	return galaxyLight;
+}
+
 async function createPlanetsInOrbit(scene) {
-	const modelPath = "./static/";
-	const modelLoader = new GLTFLoader();
+	const modelPath = "./static/"; 
+	const modelLoader = new GLTFLoader(loadingManager);
 
 	var planetCache = [];
 
@@ -93,6 +104,40 @@ async function createPlanetsInOrbit(scene) {
 
 		new_z -= 2;
 	}
+
+	// ----------------------------------------------------
+	// Test planet 1 multi texture
+	// const planetVShader = await (await fetch("./shaders/planet1VertexShader.glsl")).text();
+	// const planetFShader = await (await fetch("./shaders/planet1FragmentShader.glsl")).text();
+	
+	// const textureLoader = new THREE.TextureLoader();
+
+	// const planetaryDiffuse = textureLoader.load('static/csilla/planet-1-diffuse.png');
+	// const planetaryBump = textureLoader.load('static/csilla/planet-1-bump.png');
+	
+	// const planetaryUniforms = {
+	// 	"diffuse_texture": { value: planetaryDiffuse },
+	// };
+
+	// const newPlanet = new THREE.Object3D();
+	
+	// const solarGeometry = new THREE.SphereGeometry(1);
+	// const solarMaterial = new THREE.ShaderMaterial({
+	// 	uniforms: planetaryUniforms,
+	// 	vertexShader: planetVShader,
+	// 	fragmentShader: planetFShader,
+
+	// });
+	// const planetaryMesh = new THREE.Mesh(solarGeometry, solarMaterial);
+	// newPlanet.add(planetaryMesh);
+	// newPlanet.position.set(0, 0, -100);
+	// scene.add(newPlanet);
+
+	//planetCache.unshift(newPlanet);
+	
+
+
+	// ----------------------------------------------------
 
 	return Promise.all(planetCache);
 }
@@ -113,7 +158,8 @@ function createPlanetaryOrbits() {
 
 		let planetaryCurve = new THREE.EllipseCurve(0, 0, sizeOfKeplerOrbitX, sizeOfKeplerOrbitY);
 		let planetaryLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(planetaryCurve.getSpacedPoints(100)), new THREE.LineBasicMaterial({
-			color: randomColor
+			opacity: 0.0,
+			transparent: true
 		}));
 
 		//planetaryLine.rotation.x = -Math.PI * 0.5;
@@ -140,41 +186,14 @@ function randomizeStartingOrbitPosition() {
 	}
 }
 
-function createPlantaryCameraPositions() {
-	let cameraPositions = [];
-	let cameraRotations = [];
-
-	const distanceFromWorld = 15;
-
-	for (let i = 0; i < 11; i++) {
-		let planet = planets[i];
-
-		// let cameraPositionForPlanet = planet.position;
-		// cameraPositionForPlanet.setZ(-distanceFromWorld);
-
-		// cameraPositions.push(cameraPositionForPlanet);
-		//cameraRotations.push(cameraRotationForPlanet);
-
-		//let cameraPositionForPlanet = planet.getWorldDirection();
-		//cameraPositions.push(cameraPositionForPlanet);
-
-	}
-
-	return {cameraPositions, cameraRotations};
-}
-
 function setHTMLLabels() {
-
-
-	// const testElement = document.getElementById("qualifications");
-
-	// const objectCSS = new CSS2DObject(testElement);
-
-	// htmlLabels.push(objectCSS);
+	const startendpanels = document.getElementsByClassName("starting-ending-panel");
+	startingLabel = new CSS2DObject(startendpanels[0]);
+	endingLabel = new CSS2DObject(startendpanels[1]);
 
 	const informationPanels = document.getElementsByClassName("information-panel");
-	
-	for (let i = 0; i < 4; i++) {
+
+	for (let i = 0; i < 5; i++) {
 		let newCSSObject = new CSS2DObject(informationPanels[i]);
 		htmlLabels.push(newCSSObject);
 	}
@@ -197,7 +216,7 @@ async function initialisation() {
 	clock = new THREE.Clock();
 
 	// Texture Loaders ------------------------------------------------------------------------------------------
-	const textureCube = new THREE.CubeTextureLoader().setPath("./static/").load([
+	const textureCube = new THREE.CubeTextureLoader(loadingManager).setPath("./static/").load([
 		"right.png", "left.png",
 		"top.png", "bottom.png",
 		"front.png", "back.png"
@@ -206,6 +225,7 @@ async function initialisation() {
 	const solarMesh = createSolarCentre();
 	solarMesh.position.z = 0;
 	const solarLight = createSunLight();
+	const galaxyLight = createGalaxyLight();
 	const planetCache = await createPlanetsInOrbit(scene);
 
 	let max = 0.005;
@@ -220,9 +240,6 @@ async function initialisation() {
 	planets = planetCache;
 	orbits = planetaryCurves;
 	orbitLines = planetaryLines;
-	
-	const {cameraPositions, cameraRotations} = createPlantaryCameraPositions();
-	
 
 	var position = -3;
 
@@ -233,11 +250,17 @@ async function initialisation() {
 
 	randomizeStartingOrbitPosition();
 
+	systemView = new THREE.Vector3().copy(solarMesh.position);
+	systemView.y += 110;
+
 	// Scene construction
 	scene.background = textureCube;
 	scene.add(solarMesh);
 
 	scene.add(solarLight);
+	scene.add(galaxyLight);
+
+	
 
 	for (let l = 0; l < 11; l++) {
 		scene.add(planetaryLines[l]);
@@ -263,17 +286,18 @@ async function initialisation() {
 
 	// Post-Processing Settings ---------------------------------------------------------------------------------
 	const renderModel = new RenderPass(scene, camera);
+	const effectBloom = new BloomPass(0.5);
 	const outputPass = new OutputPass();
 
 	composer = new EffectComposer(renderer);
 	composer.addPass(renderModel);
+	composer.addPass(effectBloom);
 	composer.addPass(outputPass);
-	
 
+	// Window Settings ------------------------------------------------------------------------------------------
 	window.addEventListener( 'resize', onWindowResize );
-	//document.body.onscroll = scrollCamera;
 	
-	addEventListener("wheel", (event) => scrollCamera());
+	
 
 	renderer.setAnimationLoop( animate );
 
@@ -292,12 +316,22 @@ function onWindowResize() {
 
 }
 
-function scrollCamera() {
-	// Hide previous html elements
-	cameraIndex = (cameraIndex+1) % 11;
-	let previousIndex = (cameraIndex-1) % 11;
+function scrollCamera(scrollingDown) {
+	if (cameraIndex < 0) {
+		startingLabel.element.remove();
+	}
 
-	htmlLabels[previousIndex].element.style.display = "none";
+	// Hide previous html elements
+	cameraIndex = scrollingDown ? modulus((cameraIndex+1), 5) : modulus((cameraIndex-1), 5);
+	let previousIndex = scrollingDown ? modulus((cameraIndex-1), 5) : modulus((cameraIndex+1), 5);
+
+	if (previousIndex !== 4) {
+		htmlLabels[previousIndex].element.style.display = "none";
+	} else {
+		endingLabel.element.style.display = "none";
+	}
+	renderedLabel = false;
+	look = true;
 }
 
 // Main Loop ------------------------------------------------------------------------------------------------
@@ -349,9 +383,7 @@ function orbit() {
 }
 
 function focusMove() {
-	if (cameraIndex >= 0) {
-		look = true;
-
+	if (cameraIndex >= 0 && cameraIndex < 4) {
 		let planet = planets[cameraIndex];
 
 		let direction = new THREE.Vector3();
@@ -363,13 +395,14 @@ function focusMove() {
 		direction.subVectors(solarMesh.position, planet.position).normalize();
 
 		camera.position.lerp(targetPosition.add(direction.multiplyScalar(2)), 0.01);
-
+	} else if (cameraIndex === 4) {
+		camera.position.lerp(systemView, 0.01);
 	}
 }
 
 function focusLook() {
 	if (look) {
-		let target = planets[cameraIndex];
+		let target = (cameraIndex < 4) ? planets[cameraIndex] : solarMesh;
 
 		startQuaternion = camera.quaternion.clone();
 		camera.lookAt(target.position);
@@ -383,21 +416,38 @@ function focusLook() {
 
 function labelRender() {
 	// Ensure close enough to planet
-	if (cameraIndex >= 0 && checkEpsilon(camera.position, planets[cameraIndex].position)) {
-		// Test CSS Object render
+	if (renderedLabel) {
+		return;
+	}
 
+	if (cameraIndex >= 0) {
+		let target = (cameraIndex === 4) ? systemView : planets[cameraIndex].position;
+		if (checkEpsilon(camera.position, target)) {
+			
+			let currentCSSObject = (cameraIndex !== 4) ? htmlLabels[cameraIndex] : endingLabel;
 
-			//spaceLineCSSObject.element.style.display = "inline";
-			// spaceLineCSSObject.position.set(0, 0, 0);
-			// spaceLineCSSObject.center.set(0, 0);
-			// planets[cameraIndex].add(spaceLineCSSObject);
-			// spaceLineCSSObject.layers.set(0);
+			currentCSSObject.element.style.display = "table";
 
-		let currentLabelIndex = cameraIndex;
-		let currentCSSObject = htmlLabels[currentLabelIndex];
+			let maxCharacters = 0;
+			var allTags = currentCSSObject.element.getElementsByTagName("p");
+			for (var i = 0, len = allTags.length; i < len; i++) {
+				allTags[i].style.maxWidth = (allTags[i].textContent.length) + "ch";
 
-		currentCSSObject.element.style.display = "inline";
-		
+				if (allTags[i].textContent.length > maxCharacters) {
+					maxCharacters = allTags[i].textContent.length;
+				}
+
+				if (i > 0) {
+					allTags[i].style.animationDelay = (1+ i).toString() + "s";
+				}
+			}
+
+			let widthMultiplier = (cameraIndex !== 4) ? (maxCharacters * 0.8).toString() + "rem" : "100%";
+
+			currentCSSObject.element.children[0].style.width = widthMultiplier;
+			
+			renderedLabel = true;
+		}
 		
 	}
 }
@@ -406,6 +456,42 @@ function labelRender() {
 function checkEpsilon(v, w) {
 	let epsilon = 5;
 	return ( ( Math.abs( v.x - w.x ) < epsilon ) && ( Math.abs( v.y - w.y ) < epsilon ) && ( Math.abs( v.z - w.z ) < epsilon ) );
+}
+
+function modulus(n, m) {
+	return ((n % m) + m) % m;
+}
+
+function onTransitionEnd(event) {
+	loadingLabel.innerHTML = "Loaded! :D"
+	if (event.target.classList.contains("loading-fade-out")) {
+		event.target.remove();
+		startingLabel.element.style.display = "table";
+
+		let maxCharacters = 0;
+		var allTags = startingLabel.element.getElementsByTagName("p");
+		allTags[0].style.maxWidth = (allTags[0].textContent.length) + "ch";
+		if (allTags[0].textContent.length > maxCharacters) {
+			maxCharacters = allTags[0].textContent.length;
+		}
+		allTags[0].style.animationDelay = "0s";
+
+
+		startingLabel.element.children[0].style.width = "100%";
+
+		addEventListener("wheel", function(event) {
+			if (event.deltaY < 0) {
+				console.log("scrolling up")
+				scrollCamera(false);
+			}
+
+			else if (event.deltaY > 0) {
+				console.log("scrolling down")
+				scrollCamera(true);
+			}
+			
+		});
+	}
 }
 
 // Start Website --------------------------------------------------------------------------------------------
