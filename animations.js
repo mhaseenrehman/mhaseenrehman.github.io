@@ -286,12 +286,12 @@ async function initialisation() {
 
 	// Post-Processing Settings ---------------------------------------------------------------------------------
 	const renderModel = new RenderPass(scene, camera);
-	const effectBloom = new BloomPass(0.5);
+	//const effectBloom = new BloomPass(0.5);
 	const outputPass = new OutputPass();
 
 	composer = new EffectComposer(renderer);
 	composer.addPass(renderModel);
-	composer.addPass(effectBloom);
+	//composer.addPass(effectBloom);
 	composer.addPass(outputPass);
 
 	// Window Settings ------------------------------------------------------------------------------------------
